@@ -10,6 +10,24 @@ struct Student: Identifiable {
     var passed: Bool {
         mark >= 50
     }
+
+    var grade: String {
+        Student.calculateGrade(for: mark)
+    }
+
+    static func calculateGrade(for mark: Int) -> String {
+        switch mark {
+        case 80...100: return "A"
+        case 75..<80:  return "A-"
+        case 70..<75:  return "B+"
+        case 65..<70:  return "B"
+        case 60..<65:  return "B-"
+        case 55..<60:  return "C+"
+        case 45..<55:  return "C"
+        case 40..<45:  return "C-"
+        default:       return "F"
+        }
+    }
 }
 
 struct ContentView: View {
@@ -81,16 +99,18 @@ struct ContentView: View {
                         .background(Color(uiColor: .tertiarySystemFill))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
 
-                        // Live Result Feedback (Not relying only on colour)
+                        // Live Result Feedback with Grade and Status
                         if let markValue = Int(mark.trimmingCharacters(in: .whitespaces)) {
+                            let grade = Student.calculateGrade(for: markValue)
+                            let isPassed = markValue >= 50
                             HStack(spacing: 6) {
-                                Image(systemName: markValue >= 50 ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                Image(systemName: isPassed ? "checkmark.circle.fill" : "xmark.circle.fill")
                                     .font(.caption)
-                                Text(markValue >= 50 ? "Result Preview: Passed (≥ 50)" : "Result Preview: Failed (< 50)")
+                                Text("Result Preview: Grade \(grade) • \(isPassed ? "Passed (≥ 50)" : "Failed (< 50)")")
                                     .font(.caption)
                                     .bold()
                             }
-                            .foregroundStyle(markValue >= 50 ? .green : .red)
+                            .foregroundStyle(isPassed ? .green : .red)
                             .padding(.vertical, 2)
                         }
 
@@ -148,12 +168,19 @@ struct ContentView: View {
 
                                 Spacer()
 
-                                // Mark & Status Badge (Both SF Symbol and text used to ensure accessibility)
+                                // Mark, Grade & Status Badge
                                 HStack(spacing: 8) {
-                                    Text("\(student.mark)")
-                                        .font(.headline)
-                                        .bold()
-                                        .foregroundStyle(.primary)
+                                    VStack(alignment: .trailing, spacing: 1) {
+                                        Text("\(student.mark)")
+                                            .font(.headline)
+                                            .bold()
+                                            .foregroundStyle(.primary)
+
+                                        Text("Grade \(student.grade)")
+                                            .font(.caption2)
+                                            .bold()
+                                            .foregroundStyle(.secondary)
+                                    }
 
                                     HStack(spacing: 4) {
                                         Image(systemName: student.passed ? "checkmark.circle.fill" : "xmark.circle.fill")
